@@ -2,18 +2,59 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login
 from django.contrib.auth.models import Group
 from .models import Product, Order, OrderItem
-from .forms import CheckoutForm, UserRegistrationForm
+from .forms import CheckoutForm, UserRegistrationForm, CommentForm
+
 
 def product_list(request):
     products = Product.objects.all()
     return render(request, 'shop/product_list.html', {'products': products})
 
+
 def product_detail(request, product_id):
     product = get_object_or_404(Product, pk=product_id)
-    return render(request, 'shop/product_detail.html', {'product': product})
+    # Retrieve comments for this product, ordered by most recent
+    comments = product.comments.all().order_by('-created_at')
+    message = ""
+    comment_form = None
+
+    # Determine if the current user has purchased this product.
+    purchased = False
+    if request.user.is_authenticated:
+        # Look through the user's orders and check for the product in order items.
+        orders = request.user.orders.all()
+        for order in orders:
+            if order.items.filter(product=product).exists():
+                purchased = True
+                break
+
+    if request.method == 'POST':
+        if not request.user.is_authenticated:
+            message = "You must be logged in to comment."
+        elif not purchased:
+            message = "You can only comment if you have purchased this product."
+        else:
+            comment_form = CommentForm(request.POST)
+            if comment_form.is_valid():
+                comment = comment_form.save(commit=False)
+                comment.product = product
+                comment.user = request.user
+                comment.save()
+                message = "Comment added successfully!"
+                # Redirect to avoid re-submission of the form.
+                return redirect('shop:product_detail', product_id=product.id)
+    else:
+        if request.user.is_authenticated and purchased:
+            comment_form = CommentForm()
+
+    return render(request, 'shop/product_detail.html', {
+        'product': product,
+        'comments': comments,
+        'comment_form': comment_form,
+        'message': message,
+        'purchased': purchased,
+    })
 
 def add_to_cart(request, product_id):
-    # For demonstration, the cart is stored in the session as a dictionary {product_id: quantity}
     product = get_object_or_404(Product, pk=product_id)
     cart = request.session.get('cart', {})
     cart[str(product_id)] = cart.get(str(product_id), 0) + 1
