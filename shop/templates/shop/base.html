@@ -44,8 +44,7 @@
                 <li class="nav-item">
                     <form method="post" action="{% url 'shop:logout' %}" style="display:inline;">
                         {% csrf_token %}
-                        <button class="nav-link btn btn-link"
-                                style="padding: 0; border: none; background: none;">
+                        <button class="nav-link">
                             Logout
                         </button>
                     </form>

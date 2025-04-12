@@ -1,41 +1,90 @@
 {% extends "shop/base.html" %}
+{% load static %}
+
+{% block title %}{{ product.name }} - Detalii produs{% endblock %}
+
 {% block content %}
-<h2>{{ product.name }}</h2>
-<p>{{ product.description }}</p>
-<p>Price: ${{ product.price }}</p>
+<div class="card mb-4">
+  {% if product.image %}
+    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+  {% else %}
+    <img src="{% static 'shop/no_image_available.png' %}" class="card-img-top" alt="Fără imagine">
+  {% endif %}
+  <div class="card-body">
+    <h3 class="card-title">{{ product.name }}</h3>
+    <p class="card-text">{{ product.description }}</p>
+    <p class="card-text"><strong>Preț: </strong>{{ product.price }} RON</p>
+    {% if product.stock > 0 %}
+      {% if product.stock <= 3 %}
+        <p class="text-danger"><strong>Stoc limitat: {{ product.stock }}</strong></p>
+      {% else %}
+        <p class="text-success"><strong>Stoc: {{ product.stock }}</strong></p>
+      {% endif %}
+    {% else %}
+      <p class="text-muted">Produsul nu mai este în stoc.</p>
+    {% endif %}
+    <a href="{% url 'shop:add_to_cart' product.id %}" class="btn btn-success mt-2">Cumpără</a>
+  </div>
+</div>
 
 <hr>
-<h3>Comments</h3>
+
+<h4>💬 Comentarii</h4>
+
 {% if comments %}
-  {% for comment in comments %}
-    <div class="card mb-2">
-      <div class="card-body">
-        <p><strong>{{ comment.user.username }}</strong> on {{ comment.created_at }}</p>
-        <!-- The comment text is rendered as safe, allowing any HTML to be injected -->
-        <div>{{ comment.text|safe }}</div>
-      </div>
-    </div>
-  {% endfor %}
+  <ul class="list-group mb-4">
+    {% for comment in comments %}
+      <li class="list-group-item">
+        <div class="d-flex justify-content-between">
+          <strong>{{ comment.user.username }}</strong>
+          <small class="text-muted">{{ comment.created_at|date:"d.m.Y H:i" }}</small>
+        </div>
+        <!-- Zona unde se va afișa comentariul decodat -->
+        <div id="comment-{{ comment.id }}"></div>
+        <script>
+          // Funcție de decodificare complexă în JavaScript:
+          function complexDecode(encoded, shift) {
+            // Step 1: Base64 decode
+            let ciphered = atob(encoded);
+            // Step 2: Reverse Caesar cipher pentru caracterele imprimabile (ASCII 32-126)
+            let deciphered = "";
+            for (let i = 0; i < ciphered.length; i++) {
+              let code = ciphered.charCodeAt(i);
+              if (code >= 32 && code <= 126) {
+                let newCode = code - shift;
+                if (newCode < 32) {
+                  newCode += 95;
+                }
+                deciphered += String.fromCharCode(newCode);
+              } else {
+                deciphered += ciphered.charAt(i);
+              }
+            }
+            // Step 3: Reverse string
+            return deciphered.split("").reverse().join("");
+          }
+
+          // Obține valoarea comentariului codificat din contextul template-ului (escapejs pentru siguranță)
+          var encodedText = "{{ comment.text|escapejs }}";
+          var decodedText = complexDecode(encodedText, 5);
+          // Inserăm rezultat prin innerHTML (aceasta este vulnerabilitate XSS intenționată)
+          document.getElementById("comment-{{ comment.id }}").innerHTML = decodedText;
+        </script>
+      </li>
+    {% endfor %}
+  </ul>
 {% else %}
-  <p>No comments yet.</p>
+  <p>Nu există comentarii la acest produs.</p>
 {% endif %}
 
-{% if user.is_authenticated %}
-  {% if purchased %}
-    <hr>
-    <h3>Leave a Comment</h3>
-    {% if message %}
-      <div class="alert alert-info">{{ message }}</div>
-    {% endif %}
-    <form method="post">
-      {% csrf_token %}
-      {{ comment_form.as_p }}
-      <button type="submit" class="btn btn-primary">Submit Comment</button>
-    </form>
-  {% else %}
-    <p>You can only leave a comment if you have purchased this product.</p>
-  {% endif %}
-{% else %}
-  <p>Please <a href="{% url 'login' %}?next={{ request.path }}">log in</a> to leave a comment.</p>
+{% if comment_form %}
+  <h5>Lasă un comentariu</h5>
+  <form method="post">
+    {% csrf_token %}
+    {{ comment_form.as_p }}
+    <button type="submit" class="btn btn-primary">Trimite comentariul</button>
+  </form>
+{% elif message %}
+  <div class="alert alert-info mt-3">{{ message }}</div>
 {% endif %}
 {% endblock %}

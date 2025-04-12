@@ -28,9 +28,9 @@ def product_detail(request, product_id):
 
     if request.method == 'POST':
         if not request.user.is_authenticated:
-            message = "You must be logged in to comment."
+            message = "Trebuie să fii autentificat pentru a comenta."
         elif not purchased:
-            message = "You can only comment if you have purchased this product."
+            message = "Poți comenta doar dacă ai cumpărat acest produs."
         else:
             comment_form = CommentForm(request.POST)
             if comment_form.is_valid():
@@ -38,11 +38,10 @@ def product_detail(request, product_id):
                 comment.product = product
                 comment.user = request.user
                 comment.save()
-                message = "Comment added successfully!"
                 return redirect('shop:product_detail', product_id=product.id)
-    else:
-        if request.user.is_authenticated and purchased:
-            comment_form = CommentForm()
+
+    if request.user.is_authenticated and purchased:
+        comment_form = CommentForm()
 
     return render(request, 'shop/product_detail.html', {
         'product': product,
