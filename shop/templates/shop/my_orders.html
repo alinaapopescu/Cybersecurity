@@ -1,15 +1,27 @@
 {% extends "shop/base.html" %}
+{% block title %}Comenzile mele{% endblock %}
 
 {% block content %}
-  <h2>Comenzile mele</h2>
-  <ul>
+<h2 class="mb-4">🧾 Comenzile mele</h2>
+
+{% if orders %}
+  <ul class="list-group">
     {% for order in orders %}
-      <li>
-        Comanda #{{ order.id }} – {{ order.created_at }}
-        <a href="{% url 'shop:order_detail' order.id %}">detalii</a>
+      <li class="list-group-item">
+        <strong>Comandă #{{ order.id }}</strong><br>
+        Plasată la: {{ order.created_at|date:"d.m.Y H:i" }}<br>
+        Metodă livrare: {{ order.get_shipping_method_display }}<br>
+        Adresă: {{ order.address }}, {{ order.city }}<br>
+        <strong>Produse:</strong>
+        <ul>
+          {% for item in order.items.all %}
+            <li>{{ item.quantity }} x {{ item.product.name }}</li>
+          {% endfor %}
+        </ul>
       </li>
-    {% empty %}
-      <li>Nu ai comenzi inca.</li>
     {% endfor %}
   </ul>
+{% else %}
+  <p>Nu ai nicio comandă plasată.</p>
+{% endif %}
 {% endblock %}
