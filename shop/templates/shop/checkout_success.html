@@ -1,6 +1,10 @@
 {% extends "shop/base.html" %}
+{% block title %}Comandă Plasată{% endblock %}
+
 {% block content %}
-<h2>Thank you for your order!</h2>
-<p>Your order number is: {{ order.id }}</p>
-<a href="{% url 'shop:product_list' %}">Return to shop</a>
+    <div class="alert alert-success">
+        Mulțumim pentru comandă, {{ order.customer_name }}! 💌<br>
+        Total final: <strong>{{ final_total }} RON</strong><br>
+        Comanda ta va fi procesată în curând.
+    </div>
 {% endblock %}

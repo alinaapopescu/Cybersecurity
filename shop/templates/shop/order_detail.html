@@ -1,0 +1,14 @@
+{% extends "shop/base.html" %}
+
+{% block content %}
+  <h2>Detalii comandă #{{ order.id }}</h2>
+  <p>Plasată la: {{ order.created_at }}</p>
+  <p>Utilizator: {{ order.user }}</p>
+
+  <h4>Produse:</h4>
+  <ul>
+    {% for item in order.items.all %}
+      <li>{{ item.product.name }} × {{ item.quantity }}</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

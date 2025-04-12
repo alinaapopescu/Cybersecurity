@@ -1,17 +1,24 @@
 {% extends "shop/base.html" %}
 {% block content %}
-<h2>Products</h2>
-<div class="row">
-  {% for product in products %}
-    <div class="col-md-4 mb-4">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title">{{ product.name }}</h5>
-          <p class="card-text">${{ product.price }}</p>
-          <a href="{% url 'shop:product_detail' product.id %}" class="btn btn-primary">View details</a>
-        </div>
-      </div>
+    <h2>Produse disponibile</h2>
+    <div class="row">
+        {% for product in products %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text">{{ product.description|truncatewords:20 }}</p>
+                        <p><strong>{{ product.price }} RON</strong></p>
+                        <a href="{% url 'shop:product_detail' product.id %}" class="btn btn-outline-primary">Detalii</a>
+                        <a href="{% url 'shop:add_to_cart' product.id %}" class="btn btn-success mt-2">Cumpără</a>
+
+
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
     </div>
-  {% endfor %}
-</div>
 {% endblock %}

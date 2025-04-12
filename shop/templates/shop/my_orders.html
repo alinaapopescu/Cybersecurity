@@ -1,0 +1,15 @@
+{% extends "shop/base.html" %}
+
+{% block content %}
+  <h2>Comenzile mele</h2>
+  <ul>
+    {% for order in orders %}
+      <li>
+        Comanda #{{ order.id }} – {{ order.created_at }}
+        <a href="{% url 'shop:order_detail' order.id %}">detalii</a>
+      </li>
+    {% empty %}
+      <li>Nu ai comenzi inca.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

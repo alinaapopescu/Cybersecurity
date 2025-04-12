@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 
+from django.conf.global_settings import LOGOUT_REDIRECT_URL
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -31,6 +33,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
 ]
 
 ROOT_URLCONF = 'onlineshop.urls'
@@ -43,9 +46,11 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
-                'django.template.context_processors.request',  # needed for request in templates
+                'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+                'django.contrib.messages.context_processors.messages'
+
+
             ],
         },
     },
@@ -80,5 +85,11 @@ USE_TZ = True
 # Static files configuration
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'static'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'alinaelena@onlineshop.com'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

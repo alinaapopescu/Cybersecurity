@@ -1,15 +1,50 @@
 {% extends "shop/base.html" %}
+{% block title %}Coșul meu{% endblock %}
+
 {% block content %}
-<h2>Your Cart</h2>
+<h2 class="mb-4">🛒 Coșul tău de cumpărături</h2>
+
 {% if cart_items %}
-    <ul>
-        {% for item in cart_items %}
-        <li>{{ item.product.name }} ({{ item.quantity }}) - ${{ item.subtotal }}</li>
-        {% endfor %}
-    </ul>
-    <p>Total: ${{ total }}</p>
-    <a href="{% url 'shop:checkout' %}">Proceed to Checkout</a>
+<table class="table table-striped table-bordered cart-table">
+  <thead class="thead-light">
+    <tr>
+      <th>Produs</th>
+      <th>Cantitate</th>
+      <th>Preț unitar</th>
+      <th>Subtotal</th>
+      <th>Acțiuni</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in cart_items %}
+    <tr>
+      <td>{{ item.product.name }}</td>
+      <td>
+        <div class="d-flex justify-content-center align-items-center">
+          <a href="{% url 'shop:decrease_quantity' item.product.id %}" class="btn btn-sm btn-warning mr-1">−</a>
+          <span>{{ item.quantity }}</span>
+          <a href="{% url 'shop:increase_quantity' item.product.id %}" class="btn btn-sm btn-success ml-1">+</a>
+        </div>
+      </td>
+      <td>{{ item.product.price }} RON</td>
+      <td>{{ item.subtotal }} RON</td>
+      <td>
+        <a href="{% url 'shop:remove_from_cart' item.product.id %}" class="btn btn-sm btn-danger">✕</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="d-flex justify-content-between align-items-center">
+  <h4>Total: <strong>{{ total }} RON</strong></h4>
+  <a href="{% url 'shop:checkout' %}" class="btn btn-primary btn-lg">Plasează comanda</a>
+</div>
+
 {% else %}
-    <p>Your cart is empty.</p>
+<div class="alert alert-info">
+  Coșul tău este gol. 🛍️
+  <a href="{% url 'shop:product_list' %}" class="alert-link">Vezi produsele disponibile</a>.
+</div>
 {% endif %}
 {% endblock %}
