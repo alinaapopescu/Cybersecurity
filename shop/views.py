@@ -93,7 +93,7 @@ def remove_from_cart(request, product_id):
         messages.success(request, "Produsul a fost șters din coș.")
     return redirect('shop:cart')
 
-
+@login_required
 def checkout(request):
     cart = request.session.get('cart', {})
     if not cart:
@@ -304,6 +304,12 @@ def decrease_quantity(request, product_id):
 
     request.session['cart'] = cart
     return redirect('shop:cart')
+
+@login_required
+def my_orders(request):
+    orders = request.user.orders.all().order_by('-created_at')
+    return render(request, 'shop/my_orders.html', {'orders': orders})
+
 
 
 
