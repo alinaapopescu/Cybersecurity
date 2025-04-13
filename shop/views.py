@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import check_password
 from django.core.mail import send_mail
+from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login as auth_login, get_user_model, logout as auth_logout
 from django.contrib.auth.models import Group
@@ -184,7 +185,6 @@ def checkout(request):
         form = CheckoutForm()
 
     return render(request, 'shop/checkout.html', {'form': form})
-
 
 def register(request):
     if request.method == 'POST':
