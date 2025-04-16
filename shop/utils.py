@@ -8,3 +8,8 @@ def complex_encode(s, shift=5):
     )
     encoded = base64.b64encode(ciphered.encode()).decode()
     return encoded
+
+def sanitize_comment(text):
+    reversed_text = text[::-1]
+    encoded = base64.b64encode(reversed_text.encode()).decode()
+    return encoded

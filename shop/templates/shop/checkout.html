@@ -2,12 +2,71 @@
 {% block title %}Checkout{% endblock %}
 
 {% block content %}
-<h2>Finalizare comandă</h2>
+<div class="container mt-4">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h2 class="mb-0">Checkout</h2>
+    </div>
+    <div class="card-body">
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <!-- Client Details -->
+        <h5 class="mb-3">Detalii client</h5>
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            {{ form.customer_name.label_tag }}
+            {{ form.customer_name }}
+            {% for error in form.customer_name.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+          <div class="form-group col-md-6">
+            {{ form.email.label_tag }}
+            {{ form.email }}
+            {% for error in form.email.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+        </div>
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
+        <!-- Address Details -->
+        <h5 class="mb-3">Adresă de livrare</h5>
+        <div class="form-group">
+          {{ form.address.label_tag }}
+          {{ form.address }}
+          {% for error in form.address.errors %}
+            <div class="text-danger small">{{ error }}</div>
+          {% endfor %}
+        </div>
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            {{ form.city.label_tag }}
+            {{ form.city }}
+            {% for error in form.city.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+          <div class="form-group col-md-6">
+            {{ form.postal_code.label_tag }}
+            {{ form.postal_code }}
+            {% for error in form.postal_code.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+        </div>
 
-    <button type="submit" class="btn btn-success">Plasează comanda</button>
-</form>
+        <!-- Shipping Options -->
+        <h5 class="mb-3">Metodă de livrare</h5>
+        <div class="form-group">
+          {{ form.shipping_method }}
+          {% for error in form.shipping_method.errors %}
+            <div class="text-danger small">{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <button type="submit" class="btn btn-success btn-block">Plasează comanda</button>
+      </form>
+    </div>
+  </div>
+</div>
 {% endblock %}

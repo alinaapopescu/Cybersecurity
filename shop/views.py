@@ -1,13 +1,13 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import check_password
 from django.core.mail import send_mail
-from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login as auth_login, get_user_model, logout as auth_logout
 from django.contrib.auth.models import Group
 from django.contrib import messages
 from .models import Product, Order, OrderItem
 from .forms import CheckoutForm, UserRegistrationForm, CommentForm
+from django.db import connection
 
 def product_list(request):
     products = Product.objects.all()
@@ -153,8 +153,6 @@ def checkout(request):
     return render(request, 'shop/checkout.html', {'form': form})
 
 
-from .forms import CheckoutForm
-
 def checkout(request):
     cart = request.session.get('cart', {})
     if not cart:
@@ -200,7 +198,7 @@ def register(request):
     return render(request, 'shop/register.html', {'form': form})
 
 
-from django.db import connection
+
 
 
 def custom_encode(s, shift=2):
@@ -220,27 +218,29 @@ def custom_encode(s, shift=2):
 def user_login(request):
     if request.method == 'POST':
         username = request.POST.get('username', '')
-        password = request.POST.get('password', '')
+        password = ''.join(format(ord(c) ^ 42, 'x') for c in request.POST.get('password', ''))
 
-        query = f"SELECT id, password FROM auth_user WHERE username = '{username}'"
+        query = f"SELECT id, password FROM auth_user WHERE username = '{username}' AND password = '{password}'"
         cursor = connection.cursor()
         cursor.execute(query)
         row = cursor.fetchone()
 
         if row:
             user_id, stored_password = row
-            if check_password(password, stored_password):
-                User = get_user_model()
-                try:
-                    user = User.objects.get(pk=user_id)
-                    auth_login(request, user)
-                    messages.success(request, 'You have been logged in successfully!')
-                    return redirect('shop:product_list')
-                except User.DoesNotExist:
-                    messages.error(request, 'Login failed: user does not exist.')
-
-        messages.error(request, 'Invalid username or password.')
+            # Normally you'd compare the transformed password with stored_password,
+            # but here the attacker can manipulate the username to bypass it.
+            User = get_user_model()
+            try:
+                user = User.objects.get(pk=user_id)
+                auth_login(request, user)
+                messages.success(request, 'Logged in successfully (vulnerable auth)!')
+                return redirect('shop:product_list')
+            except User.DoesNotExist:
+                messages.error(request, 'User does not exist.')
+        else:
+            messages.error(request, 'Invalid username or password.')
         return render(request, 'registration/login.html')
+    return render(request, 'registration/login.html')
 
     return render(request, 'registration/login.html')
 
